@@ -17,4 +17,9 @@ module.exports = (handler) => [
 		path: '/songs/{id}',
 		handler: (request, h) => handler.getSongHandler(request, h),
 	},
+	{
+		method: 'PUT',
+		path: '/songs/{id}',
+		handler: (request, h) => handler.putSongHandler(request, h),
+	},
 ];

@@ -49,6 +49,21 @@ class SongsHandler {
 			.response(this._response.success('Song retrieved successfully', { song }))
 			.code(200);
 	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 * @param {import('@hapi/hapi').ResponseToolkit} h
+	 */
+	async putSongHandler(request, h) {
+		this._validator.validateSongPayload(request.payload);
+
+		const { id } = request.params;
+		const songId = await this._service.updateSong(id, request.payload);
+
+		return h
+			.response(this._response.success('Song updated successfully', { songId }))
+			.code(200);
+	}
 }
 
 module.exports = SongsHandler;

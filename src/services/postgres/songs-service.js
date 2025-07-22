@@ -60,6 +60,32 @@ class SongsService {
 			throw error;
 		}
 	}
+
+	async updateSong(songId, songData) {
+		try {
+			const result = await this.db.query(
+				'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, album_id = $6 WHERE id = $7 RETURNING id',
+				[
+					songData.title,
+					songData.year,
+					songData.performer,
+					songData.genre,
+					songData.duration ?? null,
+					songData.albumId ?? null,
+					songId,
+				]
+			);
+
+			if (result.rowCount === 0) {
+				throw new NotFoundError('Song not found');
+			}
+
+			return result.rows[0].id;
+		} catch (error) {
+			console.error('Error updating song:', error);
+			throw error;
+		}
+	}
 }
 
 module.exports = SongsService;
