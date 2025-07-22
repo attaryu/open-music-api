@@ -19,7 +19,7 @@ async function init() {
 				service: new (require('./services/postgres/albums-service'))(),
 				validator: require('./validators/albums'),
 				response: responseMapper,
-			}
+			},
 		},
 		{
 			plugin: require('./apis/songs'),
@@ -27,8 +27,8 @@ async function init() {
 				service: new (require('./services/postgres/songs-service'))(),
 				validator: require('./validators/songs'),
 				response: responseMapper,
-			}
-		}
+			},
+		},
 	]);
 
 	server.ext('onPreResponse', (request, h) => {
@@ -42,7 +42,9 @@ async function init() {
 		}
 
 		if (response.isServer) {
-			const newResponse = h.response(responseMapper.error('Internal Server Error'));
+			const newResponse = h.response(
+				responseMapper.error('Internal Server Error')
+			);
 			newResponse.code(500);
 
 			return newResponse;
