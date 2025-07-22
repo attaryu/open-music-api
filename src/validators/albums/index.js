@@ -1,9 +1,9 @@
-const { AlbumCreateSchema } = require('./schema');
+const { AlbumPayloadSchema } = require('./schema');
 const { AlbumCreatePayloadError } = require('./error');
 
 const AlbumValidator = {
-  validateCreateAlbum: (data) => {
-    const validationResult = AlbumCreateSchema.validate(data);
+  validateAlbumPayload: (data) => {
+    const validationResult = AlbumPayloadSchema.validate(data);
 
     if (validationResult.error) {
       throw new AlbumCreatePayloadError(validationResult.error.message);

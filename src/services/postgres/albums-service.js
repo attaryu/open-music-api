@@ -36,6 +36,24 @@ class AlbumsService {
       throw error;
     }
   }
+
+  async updateAlbum(albumId, albumData) {
+    try {
+      const result = await this.db.query(
+        'UPDATE albums SET name = $1, year = $2 WHERE id = $3 RETURNING id',
+        [albumData.name, albumData.year, albumId]
+      );
+
+      if (result.rows.length === 0) {
+        throw new NotFoundError('Album not found');
+      }
+
+      return result.rows[0].id;
+    } catch (error) {
+      console.error('Error updating album:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = AlbumsService;
