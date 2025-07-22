@@ -1,6 +1,6 @@
 class AlbumHandler {
   /**
-   * @param {import('../../services/spostgres/albums-service')} service
+   * @param {import('../../services/postgres/albums-service')} service
    * @param {import('../../validators/albums')} validator
    * @param {import('../../utils/response-mapper')} responseMapper
    */
@@ -52,6 +52,21 @@ class AlbumHandler {
     return h.response(this._responseMapper.success(
       'Album updated successfully',
       { albumId: updatedAlbumId }
+    )).code(200);
+  }
+
+
+  /**
+   * @param {import('@hapi/hapi').Request} request
+   * @param {import('@hapi/hapi').ResponseToolkit} h
+   */
+  async deleteAlbumHandler(request, h) {
+    const { albumId } = request.params;
+
+    await this._service.deleteAlbum(albumId);
+
+    return h.response(this._responseMapper.success(
+      'Album deleted successfully'
     )).code(200);
   }
 }
