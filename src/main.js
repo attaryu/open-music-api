@@ -37,6 +37,13 @@ async function init() {
 			return newResponse;
 		}
 
+		if (response.isServer) {
+			const newResponse = h.response(responseMapper.error('Internal Server Error'));
+			newResponse.code(500);
+
+			return newResponse;
+		}
+
 		return h.continue;
 	});
 

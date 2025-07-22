@@ -16,4 +16,11 @@ module.exports = {
     status: 'fail',
     message,
   }),
+  /**
+   * @param {string} message 
+   */
+  error: (message) => ({
+    status: 'error',
+    message,
+  }),
 };
