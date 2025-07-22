@@ -10,9 +10,12 @@ class AlbumsService {
 
   async createAlbum(albumData) {
     try {
+      const baseId = 'album-';
+
       const result = await this.db.query(
         'INSERT INTO albums (id, name, year) VALUES ($1, $2, $3) RETURNING id',
-        [`album-${generateId(16)}`, albumData.name, albumData.year]
+        // 22 based on database schema, 'id' is a VARCHAR(22)
+        [baseId + generateId(22 - baseId.length), albumData.name, albumData.year]
       );
 
       return result.rows[0].id;
