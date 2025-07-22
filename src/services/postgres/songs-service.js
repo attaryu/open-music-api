@@ -30,6 +30,16 @@ class SongsService {
       throw error;
     }
   }
+
+  async getSongs() {
+    try {
+      const result = await this.db.query('SELECT id, title, performer FROM songs');
+      return result.rows;
+    } catch (error) {
+      console.error('Error fetching songs:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = SongsService;
