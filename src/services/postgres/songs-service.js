@@ -1,4 +1,5 @@
 const connection = require('../../databases/connection');
+const NotFoundError = require('../../exceptions/not-found-error');
 const generateId = require('../../utils/generate-id');
 
 class SongsService {
@@ -37,6 +38,21 @@ class SongsService {
       return result.rows;
     } catch (error) {
       console.error('Error fetching songs:', error);
+      throw error;
+    }
+  }
+
+  async getSongById(songId) {
+    try {
+      const result = await this.db.query('SELECT * FROM songs WHERE id = $1', [songId]);
+
+      if (result.rows.length === 0) {
+        throw new NotFoundError('Song not found');
+      }
+
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error fetching song by ID:', error);
       throw error;
     }
   }

@@ -32,6 +32,19 @@ class SongsHandler {
     const songs = await this._service.getSongs();
     return h.response(this._response.success('Songs retrieved successfully', { songs })).code(200);
   }
+
+  /**
+   * @param {import('@hapi/hapi').Request} request
+   * @param {import('@hapi/hapi').ResponseToolkit} h
+   */
+  async getSongHandler(request, h) {
+    const { id } = request.params;
+    const song = await this._service.getSongById(id);
+
+    return h
+      .response(this._response.success('Song retrieved successfully', { song }))
+      .code(200);
+  }
 }
 
 module.exports = SongsHandler;
