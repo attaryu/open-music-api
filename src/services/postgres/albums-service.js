@@ -66,16 +66,13 @@ class AlbumsService {
 
 	async deleteAlbum(albumId) {
 		try {
-			const result = await this.db.query(
-				'DELETE FROM albums WHERE id = $1 RETURNING id',
-				[albumId]
-			);
+			const result = await this.db.query('DELETE FROM albums WHERE id = $1', [
+				albumId,
+			]);
 
-			if (result.rows.length === 0) {
+			if (result.rowCount === 0) {
 				throw new NotFoundError('Album not found');
 			}
-
-			return result.rows[0].id;
 		} catch (error) {
 			console.error('Error deleting album:', error);
 			throw error;
