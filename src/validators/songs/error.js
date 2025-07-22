@@ -7,4 +7,11 @@ class SongPayloadError extends ClientError {
 	}
 }
 
-module.exports = { SongPayloadError };
+class SongQueryParameterError extends ClientError {
+	constructor(message) {
+		super(message, 400);
+		this.name = 'SongQueryParameterError';
+	}
+}
+
+module.exports = { SongPayloadError, SongQueryParameterError };

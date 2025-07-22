@@ -1,5 +1,5 @@
-const { SongPayloadSchema } = require('./schema');
-const { SongPayloadError } = require('./error');
+const { SongPayloadSchema, SongQueryParametersSchema } = require('./schema');
+const { SongPayloadError, SongQueryParameterError } = require('./error');
 
 const SongValidator = {
 	validateSongPayload: (data) => {
@@ -7,6 +7,17 @@ const SongValidator = {
 
 		if (validationResult.error) {
 			throw new SongPayloadError(validationResult.error.message);
+		}
+	},
+
+	/**
+	 * @param {{ title?: string, performer?: string }} query
+	 */
+	validateSongQueryParameters: (query) => {
+		const validationResult = SongQueryParametersSchema.validate(query);
+
+		if (validationResult.error) {
+			throw new SongQueryParameterError(validationResult.error.message);
 		}
 	},
 };

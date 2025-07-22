@@ -32,11 +32,31 @@ class SongsService {
 		}
 	}
 
-	async getSongs() {
+	async getSongs({ title, performer }) {
 		try {
-			const result = await this.db.query(
-				'SELECT id, title, performer FROM songs'
-			);
+			let query = 'SELECT id, title, performer FROM songs';
+			const params = [];
+
+			if (title || performer) {
+				query += ' WHERE';
+
+				if (title) {
+					query += ` LOWER(title) LIKE LOWER($${params.length + 1})`;
+					params.push(`%${title}%`);
+				}
+
+				if (performer) {
+					if (params.length > 0) {
+						query += ' AND';
+					}
+
+					query += ` LOWER(performer) LIKE LOWER($${params.length + 1})`;
+					params.push(`%${performer}%`);
+				}
+			}
+
+			const result = await this.db.query(query, params);
+
 			return result.rows;
 		} catch (error) {
 			console.error('Error fetching songs:', error);
