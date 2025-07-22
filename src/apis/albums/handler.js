@@ -55,7 +55,6 @@ class AlbumHandler {
     )).code(200);
   }
 
-
   /**
    * @param {import('@hapi/hapi').Request} request
    * @param {import('@hapi/hapi').ResponseToolkit} h

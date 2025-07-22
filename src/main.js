@@ -2,8 +2,6 @@ require('dotenv').config();
 
 const hapi = require('@hapi/hapi');
 
-const AlbumsService = require('./services/postgres/albums-service');
-
 const ClientError = require('./exceptions/client-error');
 
 const responseMapper = require('./utils/response-mapper');
@@ -18,8 +16,16 @@ async function init() {
 		{
 			plugin: require('./apis/albums'),
 			options: {
-				service: new AlbumsService(),
+				service: new (require('./services/postgres/albums-service'))(),
 				validator: require('./validators/albums'),
+				response: responseMapper,
+			}
+		},
+		{
+			plugin: require('./apis/songs'),
+			options: {
+				service: new (require('./services/postgres/songs-service'))(),
+				validator: require('./validators/songs'),
 				response: responseMapper,
 			}
 		}

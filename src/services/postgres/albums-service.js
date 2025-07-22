@@ -1,11 +1,11 @@
-const db = require('../../databases/connection');
+const connection = require('../../databases/connection');
 const generateId = require('../../utils/generate-id');
 
 const NotFoundError = require('../../exceptions/not-found-error');
 
 class AlbumsService {
   constructor() {
-    this.db = db;
+    this.db = connection;
   }
 
   async createAlbum(albumData) {
