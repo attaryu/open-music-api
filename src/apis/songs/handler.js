@@ -64,6 +64,19 @@ class SongsHandler {
 			.response(this._response.success('Song updated successfully', { songId }))
 			.code(200);
 	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 * @param {import('@hapi/hapi').ResponseToolkit} h
+	 */
+	async deleteSongHandler(request, h) {
+		const { id } = request.params;
+		await this._service.deleteSong(id);
+
+		return h
+			.response(this._response.success('Song deleted successfully'))
+			.code(200);
+	}
 }
 
 module.exports = SongsHandler;

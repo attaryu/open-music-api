@@ -22,4 +22,9 @@ module.exports = (handler) => [
 		path: '/songs/{id}',
 		handler: (request, h) => handler.putSongHandler(request, h),
 	},
+	{
+		method: 'DELETE',
+		path: '/songs/{id}',
+		handler: (request, h) => handler.deleteSongHandler(request, h),
+	},
 ];

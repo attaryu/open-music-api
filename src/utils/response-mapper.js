@@ -3,7 +3,7 @@ module.exports = {
 	 * @param {Object} payload
 	 * @returns {Object}
 	 */
-	success: (message, data) => ({
+	success: (message, data = undefined) => ({
 		status: 'success',
 		message: message,
 		data,

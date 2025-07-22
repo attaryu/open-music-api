@@ -86,6 +86,21 @@ class SongsService {
 			throw error;
 		}
 	}
+
+	async deleteSong(songId) {
+		try {
+			const result = await this.db.query('DELETE FROM songs WHERE id = $1', [
+				songId,
+			]);
+
+			if (result.rowCount === 0) {
+				throw new NotFoundError('Song not found');
+			}
+		} catch (error) {
+			console.error('Error deleting song:', error);
+			throw error;
+		}
+	}
 }
 
 module.exports = SongsService;
