@@ -31,15 +31,27 @@ class AlbumsService {
 
 	async getAlbumById(albumId) {
 		try {
-			const result = await this.db.query('SELECT * FROM albums WHERE id = $1', [
-				albumId,
-			]);
+			const result = await this.db.query(
+				'SELECT a.id, a.name, a.year, s.id AS "songId", s.title, s.performer FROM albums a LEFT JOIN songs s ON a.id = s.album_id WHERE a.id = $1',
+				[albumId]
+			);
 
 			if (result.rows.length === 0) {
 				throw new NotFoundError('Album not found');
 			}
 
-			return result.rows[0] ?? null;
+			return {
+				id: result.rows[0].id,
+				name: result.rows[0].name,
+				year: result.rows[0].year,
+				songs: result.rows[0].songId
+					? result.rows.map((row) => ({
+							id: row.songId,
+							title: row.title,
+							performer: row.performer,
+					  }))
+					: [],
+			};
 		} catch (error) {
 			console.error('Error fetching album:', error);
 			throw error;
