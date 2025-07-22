@@ -1,5 +1,6 @@
 const connection = require('../../databases/connection');
 const NotFoundError = require('../../exceptions/not-found-error');
+
 const generateId = require('../../utils/generate-id');
 
 class SongsService {

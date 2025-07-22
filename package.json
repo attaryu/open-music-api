@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/main.js",
     "dev": "nodemon src/main.js",
-    "db:migrate": "node-pg-migrate"
+    "db:migrate": "node-pg-migrate",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
