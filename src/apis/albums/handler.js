@@ -1,6 +1,6 @@
 class AlbumHandler {
   /**
-   * @param {import('../../services/postgres/albums-service')} service
+   * @param {import('../../services/spostgres/albums-service')} service
    * @param {import('../../validators/albums')} validator
    * @param {import('../../utils/response-mapper')} responseMapper
    */
@@ -19,6 +19,18 @@ class AlbumHandler {
     const albumId = await this._service.createAlbum(request.payload);
 
     return h.response(this._responseMapper.success({ albumId })).code(201);
+  }
+
+  /**
+   * @param {import('@hapi/hapi').Request} request
+   * @param {import('@hapi/hapi').ResponseToolkit} h
+   */
+  async getAlbumHandler(request, h) {
+    const { albumId } = request.params;
+
+    const album = await this._service.getAlbumById(albumId);
+
+    return h.response(this._responseMapper.success(album)).code(200);
   }
 }
 
