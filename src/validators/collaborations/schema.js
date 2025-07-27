@@ -8,4 +8,12 @@ const PostCollaborationsPayloadSchema = Joi.object({
 	userId: userIdSchema,
 });
 
-module.exports = { PostCollaborationsPayloadSchema };
+const DeleteCollaborationPayloadSchema = Joi.object({
+	playlistId: playlistIdSchema,
+	userId: userIdSchema,
+});
+
+module.exports = {
+	PostCollaborationsPayloadSchema,
+	DeleteCollaborationPayloadSchema,
+};

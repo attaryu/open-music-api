@@ -67,19 +67,7 @@ class PlaylistsHandler {
 
 		const { userId } = request.auth.credentials;
 		const playlistId = request.params.id;
-
-		try {
-			await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
-		} catch (error) {			
-			if (error instanceof NotFoundError) {
-				throw error;
-			}
-
-			await this._collaborationsService.verifyCollaboration(
-				playlistId,
-				userId
-			);
-		}
+		await this._verifyPlaylistAccess(playlistId, userId);
 
 		await this._playlistsService.addSongToPlaylist(playlistId, songId);
 
@@ -97,16 +85,7 @@ class PlaylistsHandler {
 	async getPlaylistSongsHandler(request) {
 		const playlistId = request.params.id;
 		const { userId } = request.auth.credentials;
-
-		try {
-			await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
-		} catch (error) {
-			if (error instanceof NotFoundError) {
-				throw error;
-			}
-
-			await this._collaborationsService.verifyCollaboration(playlistId, userId);
-		}
+		await this._verifyPlaylistAccess(playlistId, userId);
 
 		const playlist = await this._playlistsService.getPlaylistSongs(playlistId);
 
@@ -123,7 +102,7 @@ class PlaylistsHandler {
 
 		const { userId } = request.auth.credentials;
 		const playlistId = request.params.id;
-		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+		await this._verifyPlaylistAccess(playlistId, userId);
 
 		const { songId } = request.payload;
 		await this._playlistsService.deletePlaylistSong(playlistId, songId);
@@ -144,6 +123,26 @@ class PlaylistsHandler {
 		await this._playlistsService.deletePlaylist(playlistId);
 
 		return this._responseMapper.success('Playlist deleted successfully');
+	}
+
+	/**
+	 * @param {string} playlistId 
+	 * @param {string} userId 
+	 * 
+	 * @throws {NotFoundError} If the playlist does not exist or the user is not authorized
+	 * @throws {ForbiddenError} If the user does not have access to the playlist
+	 * @returns {Promise<void>}
+	 */
+	async _verifyPlaylistAccess(playlistId, userId) {
+		try {
+			await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+		} catch (error) {
+			if (error instanceof NotFoundError) {
+				throw error;
+			}
+
+			await this._collaborationsService.verifyCollaboration(playlistId, userId);
+		}
 	}
 }
 

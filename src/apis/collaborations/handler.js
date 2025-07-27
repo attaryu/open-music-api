@@ -26,7 +26,7 @@ class CollaborationsHandler {
 	 */
 	async postCollaborationHandler(request, h) {
 		this._validator.validatePostCollaborationPayload(request.payload);
-		
+
 		const { playlistId, userId } = request.payload;
 		await this._usersService.verifyUser(userId);
 
@@ -45,6 +45,21 @@ class CollaborationsHandler {
 				})
 			)
 			.code(201);
+	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 */
+	async deleteCollaborationHandler(request) {
+		this._validator.validateDeleteCollaborationPayload(request.payload);
+
+		const { playlistId, userId } = request.payload;
+		const ownerId = request.auth.credentials.userId;
+
+		await this._playlistsService.verifyPlaylistOwner(playlistId, ownerId);
+		await this._collaborationsService.deleteCollaboration(playlistId, userId);
+
+		return this._responseMapper.success('Collaboration deleted successfully');
 	}
 }
 

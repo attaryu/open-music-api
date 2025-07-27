@@ -23,10 +23,24 @@ class CollaborationsService {
 	}
 
 	/**
+	 * @param {string} playlistId 
+	 * @param {string} userId 
+	 * 
+	 * @returns {Promise<void>}
+	 */
+	async deleteCollaboration(playlistId, userId) {
+		await this._pool.query({
+			text: 'DELETE FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
+			values: [playlistId, userId],
+		});
+	}
+
+	/**
 	 * @param {string} playlistId
 	 * @param {string} userId
 	 *
 	 * @throws {ForbiddenError} if user does not have permission
+	 * @returns {Promise<void>}
 	 */
 	async verifyCollaboration(playlistId, userId) {
 		const result = await this._pool.query({
