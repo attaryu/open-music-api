@@ -22,10 +22,10 @@ class TokenManager {
    * @param {string} token 
    * @returns {string}
    */
-  verifyAccessToken(token) {
+  verifyToken(token) {
     try {
       const artifact = jwt.token.decode(token);
-      jwt.token.verify(artifact, process.env.ACCESS_TOKEN_KEY);
+      jwt.token.verify(artifact, process.env.REFRESH_TOKEN_KEY);
 
       return artifact.decoded.payload.userId;
     } catch {

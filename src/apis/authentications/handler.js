@@ -21,30 +21,51 @@ class AuthenticationHandler {
 	}
 
 	/**
-	 *
 	 * @param {import('hapi').Request} request
 	 * @param {import('hapi').ResponseToolkit} h
 	 */
 	async postAuthenticationHandler(request, h) {
-		this._validator.validateAuthenticationPayload(request.payload);
-    
+		this._validator.validatePostAuthenticationPayload(request.payload);
+
 		const userId = await this._usersService.verifyCredentials(
 			request.payload.username,
 			request.payload.password
 		);
 
-    const accessToken = this._tokenManager.generateAccessToken(userId);
-    const refreshToken = this._tokenManager.generateRefreshToken(userId);
+		const accessToken = this._tokenManager.generateAccessToken(userId);
+		const refreshToken = this._tokenManager.generateRefreshToken(userId);
 
-    await this._authenticationsService.addAuthenticationToken(refreshToken, userId);
+		await this._authenticationsService.addAuthenticationToken(
+			refreshToken,
+			userId
+		);
 
-    const response = h.response(this._responseMapper.success('Authentication successful', {
-      accessToken,
-      refreshToken,
-    }));
-    response.code(201);
+		const response = h.response(
+			this._responseMapper.success('Authentication successful', {
+				accessToken,
+				refreshToken,
+			})
+		);
+		response.code(201);
 
-    return response;
+		return response;
+	}
+
+	/**
+	 * @param {import('hapi').Request} request
+	 */
+	async putAuthenticationHandler(request) {
+		this._validator.validatePutAuthenticationPayload(request.payload);
+		const { refreshToken } = request.payload;
+
+		const userId = this._tokenManager.verifyToken(refreshToken);
+		await this._authenticationsService.verifyRefreshToken(refreshToken, userId);
+
+		const accessToken = this._tokenManager.generateAccessToken(userId);		
+		
+		return this._responseMapper.success('Access token refreshed', {
+			accessToken,
+		});
 	}
 }
 

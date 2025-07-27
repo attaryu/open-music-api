@@ -9,4 +9,9 @@ module.exports = (handler) => [
     path: '/authentications',
     handler: (request, h) => handler.postAuthenticationHandler(request, h),
   },
+  {
+    method: 'PUT',
+    path: '/authentications',
+    handler: (request) => handler.putAuthenticationHandler(request),
+  }
 ];

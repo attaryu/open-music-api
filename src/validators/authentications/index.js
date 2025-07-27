@@ -1,9 +1,19 @@
-const { AuthenticationPayloadSchema } = require('./schema');
 const { AuthenticationPayloadError } = require('./error');
+const {
+	PostAuthenticationPayloadSchema,
+	PutAuthenticationPayloadSchema,
+} = require('./schema');
 
 const AuthenticationValidator = {
-	validateAuthenticationPayload: (data) => {
-		const validationResult = AuthenticationPayloadSchema.validate(data);
+	validatePostAuthenticationPayload: (data) => {
+		const validationResult = PostAuthenticationPayloadSchema.validate(data);
+
+		if (validationResult.error) {
+			throw new AuthenticationPayloadError(validationResult.error.message);
+		}
+	},
+	validatePutAuthenticationPayload: (data) => {
+		const validationResult = PutAuthenticationPayloadSchema.validate(data);
 
 		if (validationResult.error) {
 			throw new AuthenticationPayloadError(validationResult.error.message);

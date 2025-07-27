@@ -1,5 +1,7 @@
 const { Pool } = require('pg');
 
+const BadRequestError = require('../../exceptions/bad-request-error');
+
 const generateId = require('../../utils/generate-id');
 
 class AuthenticationsService {
@@ -20,6 +22,23 @@ class AuthenticationsService {
 			text: 'INSERT INTO authentications (id, user_id, token) VALUES ($1, $2, $3)',
 			values: [baseId + generateId(50 - baseId.length), userId, token],
 		});
+	}
+
+	/**
+	 * @param {string} token 
+	 * @param {string} userId
+	 * 
+	 * @returns {Promise<void>}
+	 */
+	async verifyRefreshToken(token, userId) {
+		const result = await this._pool.query({
+			text: 'SELECT token FROM authentications WHERE token = $1 AND user_id = $2',
+			values: [token, userId],
+		});
+
+		if (result.rowCount <= 0) {
+			throw new BadRequestError('Refresh token not found');
+		}
 	}
 
 	/**
