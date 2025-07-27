@@ -16,11 +16,12 @@ exports.up = (pgm) => {
 		},
 		user_id: {
 			type: 'VARCHAR(22)',
-      unique: true,
       notNull: true,
 		},
 		token: {
 			type: 'text',
+      notNull: true,
+      unique: true,
 		},
 	});
 

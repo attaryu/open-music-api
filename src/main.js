@@ -12,6 +12,9 @@ async function init() {
 		host: process.env.HOST ?? 'localhost',
 	});
 
+	const usersService = new (require('./services/postgres/users-service'))();
+
+	
 	await server.register([
 		{
 			plugin: require('./apis/albums'),
@@ -32,8 +35,18 @@ async function init() {
 		{
 			plugin: require('./apis/users'),
 			options: {
-				service: new (require('./services/postgres/users-service'))(),
+				service: usersService,
 				validator: require('./validators/users'),
+				responseMapper,
+			},
+		},
+		{
+			plugin: require('./apis/authentications'),
+			options: {
+				authenticationsService: new (require('./services/postgres/authentications-service'))(),
+				usersService,
+				tokenManager: new (require('./providers/token-manager'))(),
+				validator: require('./validators/authentications'),
 				responseMapper,
 			},
 		},
