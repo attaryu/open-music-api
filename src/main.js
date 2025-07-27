@@ -34,6 +34,10 @@ async function init() {
 
 	const usersService = new (require('./services/postgres/users-service'))();
 	const songsService = new (require('./services/postgres/songs-service'))();
+	const collaborationsService =
+		new (require('./services/postgres/collaborations-service'))();
+	const playlistsService =
+		new (require('./services/postgres/playlists-service'))();
 
 	await server.register([
 		{
@@ -74,10 +78,20 @@ async function init() {
 		{
 			plugin: require('./apis/playlists'),
 			options: {
-				playlistsService:
-					new (require('./services/postgres/playlists-service'))(),
+				playlistsService,
+				collaborationsService,
 				songsService,
 				validator: require('./validators/playlists'),
+				responseMapper,
+			},
+		},
+		{
+			plugin: require('./apis/collaborations'),
+			options: {
+				collaborationsService,
+				usersService,
+				playlistsService,
+				validator: require('./validators/collaborations'),
 				responseMapper,
 			},
 		},

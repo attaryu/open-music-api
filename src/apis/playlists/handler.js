@@ -1,12 +1,22 @@
+const NotFoundError = require('../../exceptions/not-found-error');
+
 class PlaylistsHandler {
 	/**
 	 * @param {import('../../services/postgres/playlists-service')} playlistsService
+	 * @param {import('../../services/postgres/collaborations-service')} collaborationsService
 	 * @param {import('../../services/postgres/songs-service')} songsService
 	 * @param {import('../../validators/playlists')} validator
 	 * @param {import('../../utils/response-mapper')} responseMapper
 	 */
-	constructor(playlistsService, songsService, validator, responseMapper) {
+	constructor(
+		playlistsService,
+		collaborationsService,
+		songsService,
+		validator,
+		responseMapper
+	) {
 		this._playlistsService = playlistsService;
+		this._collaborationsService = collaborationsService;
 		this._songsService = songsService;
 		this._validator = validator;
 		this._responseMapper = responseMapper;
@@ -57,9 +67,21 @@ class PlaylistsHandler {
 
 		const { userId } = request.auth.credentials;
 		const playlistId = request.params.id;
-		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
 
-		await this._playlistsService.addSongToPlaylist(playlistId, songId, userId);
+		try {
+			await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+		} catch (error) {			
+			if (error instanceof NotFoundError) {
+				throw error;
+			}
+
+			await this._collaborationsService.verifyCollaboration(
+				playlistId,
+				userId
+			);
+		}
+
+		await this._playlistsService.addSongToPlaylist(playlistId, songId);
 
 		const response = h.response(
 			this._responseMapper.success('Song added to playlist successfully')
@@ -75,7 +97,16 @@ class PlaylistsHandler {
 	async getPlaylistSongsHandler(request) {
 		const playlistId = request.params.id;
 		const { userId } = request.auth.credentials;
-		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+
+		try {
+			await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+		} catch (error) {
+			if (error instanceof NotFoundError) {
+				throw error;
+			}
+
+			await this._collaborationsService.verifyCollaboration(playlistId, userId);
+		}
 
 		const playlist = await this._playlistsService.getPlaylistSongs(playlistId);
 
@@ -93,21 +124,23 @@ class PlaylistsHandler {
 		const { userId } = request.auth.credentials;
 		const playlistId = request.params.id;
 		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
-		
+
 		const { songId } = request.payload;
 		await this._playlistsService.deletePlaylistSong(playlistId, songId);
 
-		return this._responseMapper.success('Song removed from playlist successfully');
+		return this._responseMapper.success(
+			'Song removed from playlist successfully'
+		);
 	}
 
 	/**
-	 * @param {impo} request 
+	 * @param {impo} request
 	 */
 	async deletePlaylistHandler(request) {
 		const { userId } = request.auth.credentials;
 		const playlistId = request.params.id;
 		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
-		
+
 		await this._playlistsService.deletePlaylist(playlistId);
 
 		return this._responseMapper.success('Playlist deleted successfully');
