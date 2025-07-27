@@ -29,10 +29,25 @@ async function init() {
 				response: responseMapper,
 			},
 		},
+		{
+			plugin: require('./apis/users'),
+			options: {
+				service: new (require('./services/postgres/users-service'))(),
+				validator: require('./validators/users'),
+				responseMapper,
+			},
+		},
 	]);
 
 	server.ext('onPreResponse', (request, h) => {
 		const { response } = request;
+
+		if (
+			response instanceof Error &&
+			process.env.NODE_ENV.trim() === 'development'
+		) {
+			console.error(response);
+		}
 
 		if (response instanceof ClientError) {
 			const newResponse = h.response(responseMapper.fail(response.message));
