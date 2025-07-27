@@ -83,6 +83,22 @@ class PlaylistsHandler {
 			playlist,
 		});
 	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 */
+	async deletePlaylistSongHandler(request) {
+		this._validator.validateDeletePlaylistSongPayload(request.payload);
+
+		const { userId } = request.auth.credentials;
+		const playlistId = request.params.id;
+		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+		
+		const { songId } = request.payload;
+		await this._playlistsService.deletePlaylistSong(playlistId, songId);
+
+		return this._responseMapper.success('Song removed from playlist successfully');
+	}
 }
 
 module.exports = PlaylistsHandler;

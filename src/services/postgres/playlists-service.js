@@ -75,6 +75,13 @@ class PlaylistsService {
 		};
 	}
 
+	async deletePlaylistSong(playlistId, songId) {
+		await this._pool.query({
+			text: 'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2',
+			values: [playlistId, songId],
+		});
+	}
+
 	/**
 	 * @param {string} playlistId
 	 * @param {string} userId
