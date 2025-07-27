@@ -12,8 +12,27 @@ async function init() {
 		host: process.env.HOST ?? 'localhost',
 	});
 
-	const usersService = new (require('./services/postgres/users-service'))();
+	await server.register({
+		plugin: require('@hapi/jwt'),
+	});
 
+	server.auth.strategy('openmusic_jwt', 'jwt', {
+		keys: process.env.ACCESS_TOKEN_KEY,
+		verify: {
+			aud: false,
+			iss: false,
+			sub: false,
+			maxAgeSec: process.env.ACCESS_TOKEN_EXPIRATION,
+		},
+		validate: (artifacts) => ({
+			isValid: true,
+			credentials: {
+				userId: artifacts.decoded.payload.userId,
+			},
+		}),
+	});
+
+	const usersService = new (require('./services/postgres/users-service'))();
 	
 	await server.register([
 		{
@@ -47,6 +66,14 @@ async function init() {
 				usersService,
 				tokenManager: new (require('./providers/token-manager'))(),
 				validator: require('./validators/authentications'),
+				responseMapper,
+			},
+		},
+		{
+			plugin: require('./apis/playlists'),
+			options: {
+				playlistsService: new (require('./services/postgres/playlists-service'))(),
+				validator: require('./validators/playlists'),
 				responseMapper,
 			},
 		},
