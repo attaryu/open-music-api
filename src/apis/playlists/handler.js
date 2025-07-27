@@ -99,6 +99,19 @@ class PlaylistsHandler {
 
 		return this._responseMapper.success('Song removed from playlist successfully');
 	}
+
+	/**
+	 * @param {impo} request 
+	 */
+	async deletePlaylistHandler(request) {
+		const { userId } = request.auth.credentials;
+		const playlistId = request.params.id;
+		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+		
+		await this._playlistsService.deletePlaylist(playlistId);
+
+		return this._responseMapper.success('Playlist deleted successfully');
+	}
 }
 
 module.exports = PlaylistsHandler;

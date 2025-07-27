@@ -33,4 +33,10 @@ module.exports = (handler) => [
 		handler: (request) => handler.deletePlaylistSongHandler(request),
 		options: { auth: 'openmusic_jwt' },
 	},
+	{
+		method: 'DELETE',
+		path: '/playlists/{id}',
+		handler: (request) => handler.deletePlaylistHandler(request),
+		options: { auth: 'openmusic_jwt' },
+	},
 ];
