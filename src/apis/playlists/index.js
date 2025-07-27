@@ -10,6 +10,7 @@ module.exports = {
 			playlistsService,
 			collaborationsService,
 			songsService,
+			playlistSongActivitiesService,
 			validator,
 			responseMapper,
 		}
@@ -18,6 +19,7 @@ module.exports = {
 			playlistsService,
 			collaborationsService,
 			songsService,
+			playlistSongActivitiesService,
 			validator,
 			responseMapper
 		);

@@ -81,6 +81,8 @@ async function init() {
 				playlistsService,
 				collaborationsService,
 				songsService,
+				playlistSongActivitiesService:
+					new (require('./services/postgres/playlist-song-activities-service'))(),
 				validator: require('./validators/playlists'),
 				responseMapper,
 			},

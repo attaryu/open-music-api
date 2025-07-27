@@ -5,6 +5,7 @@ class PlaylistsHandler {
 	 * @param {import('../../services/postgres/playlists-service')} playlistsService
 	 * @param {import('../../services/postgres/collaborations-service')} collaborationsService
 	 * @param {import('../../services/postgres/songs-service')} songsService
+	 * @param {import('../../services/postgres/playlist-song-activities-service')} playlistSongActivitiesService
 	 * @param {import('../../validators/playlists')} validator
 	 * @param {import('../../utils/response-mapper')} responseMapper
 	 */
@@ -12,12 +13,14 @@ class PlaylistsHandler {
 		playlistsService,
 		collaborationsService,
 		songsService,
+		playlistSongActivitiesService,
 		validator,
 		responseMapper
 	) {
 		this._playlistsService = playlistsService;
 		this._collaborationsService = collaborationsService;
 		this._songsService = songsService;
+		this._playlistSongActivitiesService = playlistSongActivitiesService;
 		this._validator = validator;
 		this._responseMapper = responseMapper;
 	}
@@ -70,6 +73,11 @@ class PlaylistsHandler {
 		await this._verifyPlaylistAccess(playlistId, userId);
 
 		await this._playlistsService.addSongToPlaylist(playlistId, songId);
+		await this._playlistSongActivitiesService.addActivity(
+			playlistId,
+			songId,
+			userId
+		);
 
 		const response = h.response(
 			this._responseMapper.success('Song added to playlist successfully')
@@ -106,6 +114,11 @@ class PlaylistsHandler {
 
 		const { songId } = request.payload;
 		await this._playlistsService.deletePlaylistSong(playlistId, songId);
+		await this._playlistSongActivitiesService.deleteActivity(
+			playlistId,
+			songId,
+			userId
+		);
 
 		return this._responseMapper.success(
 			'Song removed from playlist successfully'
@@ -126,9 +139,24 @@ class PlaylistsHandler {
 	}
 
 	/**
-	 * @param {string} playlistId 
-	 * @param {string} userId 
-	 * 
+	 * @param {import('@hapi/hapi').Request} request
+	 */
+	async getPlaylistActivitiesHandler(request) {
+		const playlistId = request.params.id;
+		const { userId } = request.auth.credentials;
+		await this._verifyPlaylistAccess(playlistId, userId);
+
+		const activities = await this._playlistSongActivitiesService.getActivities(
+			playlistId
+		);
+
+		return this._responseMapper.success('Activities retrieved successfully', activities);
+	}
+
+	/**
+	 * @param {string} playlistId
+	 * @param {string} userId
+	 *
 	 * @throws {NotFoundError} If the playlist does not exist or the user is not authorized
 	 * @throws {ForbiddenError} If the user does not have access to the playlist
 	 * @returns {Promise<void>}
