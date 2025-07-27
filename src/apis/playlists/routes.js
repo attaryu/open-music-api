@@ -21,4 +21,10 @@ module.exports = (handler) => [
 		handler: (request, h) => handler.postPlaylistSongHandler(request, h),
 		options: { auth: 'openmusic_jwt' },
 	},
+	{
+		method: 'GET',
+		path: '/playlists/{id}/songs',
+		handler: (request, h) => handler.getPlaylistSongsHandler(request, h),
+		options: { auth: 'openmusic_jwt' },
+	},
 ];

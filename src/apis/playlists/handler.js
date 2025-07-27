@@ -68,6 +68,21 @@ class PlaylistsHandler {
 
 		return response;
 	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 */
+	async getPlaylistSongsHandler(request) {
+		const playlistId = request.params.id;
+		const { userId } = request.auth.credentials;
+		await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+
+		const playlist = await this._playlistsService.getPlaylistSongs(playlistId);
+
+		return this._responseMapper.success('Songs retrieved successfully', {
+			playlist,
+		});
+	}
 }
 
 module.exports = PlaylistsHandler;

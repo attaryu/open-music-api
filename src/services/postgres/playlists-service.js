@@ -13,7 +13,7 @@ class PlaylistsService {
 	/**
 	 * @param {string} name
 	 * @param {string} userId
-	 * 
+	 *
 	 * @returns {Promise<string>}
 	 */
 	async addPlaylist(name, userId) {
@@ -29,7 +29,7 @@ class PlaylistsService {
 
 	/**
 	 * @param {string} userId
-	 * 
+	 *
 	 * @returns {Promise<Array<{ id: string, name: string, username: string }>>}
 	 */
 	async getPlaylists(userId) {
@@ -44,7 +44,7 @@ class PlaylistsService {
 	/**
 	 * @param {string} playlistId
 	 * @param {string} songId
-	 * 
+	 *
 	 * @returns {Promise<void>}
 	 */
 	async addSongToPlaylist(playlistId, songId) {
@@ -55,9 +55,30 @@ class PlaylistsService {
 	}
 
 	/**
-	 * @param {string} playlistId 
-	 * @param {string} userId 
-	 * 
+	 * @param {string} playlistId
+	 */
+	async getPlaylistSongs(playlistId) {
+		const result = await this._pool.query({
+			text: 'SELECT p.id, p.name, u.username, s.id AS "songId", s.title, s.performer FROM songs AS s LEFT JOIN playlist_songs ON s.id = playlist_songs.song_id LEFT JOIN playlists AS p ON playlist_songs.playlist_id = p.id LEFT JOIN users AS u ON p.owner = u.id WHERE p.id = $1',
+			values: [playlistId],
+		});
+
+		return {
+			id: result.rows[0].id,
+			name: result.rows[0].name,
+			username: result.rows[0].username,
+			songs: result.rows.map((row) => ({
+				id: row.songId,
+				title: row.title,
+				performer: row.performer,
+			})),
+		};
+	}
+
+	/**
+	 * @param {string} playlistId
+	 * @param {string} userId
+	 *
 	 * @throws {NotFoundError} If the playlist does not exist
 	 * @throws {ForbiddenError} If the user is not the owner of the playlist
 	 */
