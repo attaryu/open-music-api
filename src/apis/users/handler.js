@@ -4,8 +4,8 @@ class UsersHandler {
 	 * @param {import('../../validators/users')} validator
 	 * @param {import('../../utils/response-mapper')} responseMapper
 	 */
-	constructor(service, validator, responseMapper) {
-		this._service = service;
+	constructor(usersService, validator, responseMapper) {
+		this._usersService = usersService;
 		this._validator = validator;
 		this._responseMapper = responseMapper;
 	}
@@ -17,14 +17,13 @@ class UsersHandler {
 	async postUserHandler(request, h) {
 		this._validator.validateUserPayload(request.payload);
 
-		const userId = await this._service.addUser(request.payload);
+		const userId = await this._usersService.addUser(request.payload);
 
-		const response = h.response(
-			this._responseMapper.success('User added successfully', { userId })
-		);
-		response.code(201);
-
-		return response;
+		return h
+			.response(
+				this._responseMapper.success('User added successfully', { userId })
+			)
+			.code(201);
 	}
 }
 

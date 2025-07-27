@@ -1,11 +1,11 @@
 class AlbumHandler {
 	/**
-	 * @param {import('../../services/postgres/albums-service')} service
+	 * @param {import('../../services/postgres/albums-service')} albumsService
 	 * @param {import('../../validators/albums')} validator
 	 * @param {import('../../utils/response-mapper')} responseMapper
 	 */
-	constructor(service, validator, responseMapper) {
-		this._service = service;
+	constructor(albumsService, validator, responseMapper) {
+		this._albumsService = albumsService;
 		this._validator = validator;
 		this._responseMapper = responseMapper;
 	}
@@ -16,7 +16,11 @@ class AlbumHandler {
 	 */
 	async postAlbumHandler(request, h) {
 		this._validator.validateAlbumPayload(request.payload);
-		const albumId = await this._service.createAlbum(request.payload);
+
+		const albumId = await this._albumsService.createAlbum(
+			request.payload.name,
+			request.payload.year
+		);
 
 		return h
 			.response(
@@ -27,49 +31,39 @@ class AlbumHandler {
 
 	/**
 	 * @param {import('@hapi/hapi').Request} request
-	 * @param {import('@hapi/hapi').ResponseToolkit} h
 	 */
-	async getAlbumHandler(request, h) {
+	async getAlbumHandler(request) {
 		const { id } = request.params;
-		const album = await this._service.getAlbumById(id);
+		const album = await this._albumsService.getAlbumById(id);
 
-		return h
-			.response(
-				this._responseMapper.success('Album retrieved successfully', { album })
-			)
-			.code(200);
+		return this._responseMapper.success('Album retrieved successfully', {
+			album,
+		});
 	}
 
 	/**
 	 * @param {import('@hapi/hapi').Request} request
-	 * @param {import('@hapi/hapi').ResponseToolkit} h
 	 */
-	async putAlbumHandler(request, h) {
+	async putAlbumHandler(request) {
 		this._validator.validateAlbumPayload(request.payload);
 
-		const { id } = request.params;
-		const updatedAlbumId = await this._service.updateAlbum(id, request.payload);
+		const updatedAlbumId = await this._albumsService.updateAlbum(
+			request.params.id,
+			request.payload.name,
+			request.payload.year
+		);
 
-		return h
-			.response(
-				this._responseMapper.success('Album updated successfully', {
-					albumId: updatedAlbumId,
-				})
-			)
-			.code(200);
+		return this._responseMapper.success('Album updated successfully', {
+			albumId: updatedAlbumId,
+		});
 	}
 
 	/**
 	 * @param {import('@hapi/hapi').Request} request
-	 * @param {import('@hapi/hapi').ResponseToolkit} h
 	 */
-	async deleteAlbumHandler(request, h) {
-		const { id } = request.params;
-		await this._service.deleteAlbum(id);
-
-		return h
-			.response(this._responseMapper.success('Album deleted successfully'))
-			.code(200);
+	async deleteAlbumHandler(request) {
+		await this._albumsService.deleteAlbum(request.params.id);
+		return this._responseMapper.success('Album deleted successfully');
 	}
 }
 

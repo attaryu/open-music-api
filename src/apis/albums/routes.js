@@ -1,6 +1,6 @@
 /**
  * @param {import('./handler')} handler 
- * @returns 
+ * @returns {import('hapi').ServerRoute[]}
  */
 const routes = (handler) => [
   {
@@ -11,17 +11,17 @@ const routes = (handler) => [
   {
     method: 'GET',
     path: '/albums/{id}',
-    handler: (header, h) => handler.getAlbumHandler(header, h),
+    handler: (header) => handler.getAlbumHandler(header),
   },
   {
     method: 'PUT',
     path: '/albums/{id}',
-    handler: (header, h) => handler.putAlbumHandler(header, h),
+    handler: (header) => handler.putAlbumHandler(header),
   },
   {
     method: 'DELETE',
     path: '/albums/{id}',
-    handler: (header, h) => handler.deleteAlbumHandler(header, h),
+    handler: (header) => handler.deleteAlbumHandler(header),
   }
 ];
 

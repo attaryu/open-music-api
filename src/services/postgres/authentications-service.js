@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+const connection = require('../../databases/connection');
 
 const BadRequestError = require('../../exceptions/bad-request-error');
 
@@ -6,7 +6,7 @@ const generateId = require('../../utils/generate-id');
 
 class AuthenticationsService {
 	constructor() {
-		this._pool = new Pool();
+		this._pool = connection;
 	}
 
 	/**
@@ -28,6 +28,7 @@ class AuthenticationsService {
 	 * @param {string} token 
 	 * @param {string} userId
 	 * 
+	 * @throws {BadRequestError}
 	 * @returns {Promise<void>}
 	 */
 	async verifyRefreshToken(token, userId) {

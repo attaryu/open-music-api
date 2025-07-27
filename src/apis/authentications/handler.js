@@ -40,15 +40,14 @@ class AuthenticationHandler {
 			userId
 		);
 
-		const response = h.response(
-			this._responseMapper.success('Authentication successful', {
-				accessToken,
-				refreshToken,
-			})
-		);
-		response.code(201);
-
-		return response;
+		return h
+			.response(
+				this._responseMapper.success('Authentication successful', {
+					accessToken,
+					refreshToken,
+				})
+			)
+			.code(201);
 	}
 
 	/**

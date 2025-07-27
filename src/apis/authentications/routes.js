@@ -1,6 +1,5 @@
 /**
  * @param {import('./handler')} handler 
- * 
  * @returns {import('hapi').ServerRoute[]}
  */
 module.exports = (handler) => [

@@ -1,5 +1,4 @@
 /**
- *
  * @param {import('./handler')} handler
  * @returns {import('@hapi/hapi').ServerRoute[]}
  */

@@ -1,5 +1,6 @@
-const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
+
+const connection = require('../../databases/connection');
 
 const BadRequest = require('../../exceptions/bad-request-error');
 const UnauthorizedError = require('../../exceptions/unauthorized-error');
@@ -9,7 +10,7 @@ const generateId = require('../../utils/generate-id');
 
 class UsersService {
 	constructor() {
-		this._pool = new Pool();
+		this._pool = connection;
 	}
 
 	/**
@@ -19,7 +20,14 @@ class UsersService {
 	 * @returns {Promise<string>} userId
 	 */
 	async addUser(user) {
-		await this._verifyUsername(user.username);
+		const existingUser = await this._pool.query({
+			text: 'SELECT id FROM users WHERE username = $1',
+			values: [user.username],
+		});
+
+		if (existingUser.rowCount > 0) {
+			throw new BadRequest('Username already exists');
+		}
 
 		const baseId = 'user-';
 		const result = await this._pool.query({
@@ -36,6 +44,13 @@ class UsersService {
 		return result.rows[0].id;
 	}
 
+	/**
+	 * @param {string} username
+	 * @param {string} password
+	 *
+	 * @throws {UnauthorizedError}
+	 * @returns {Promise<string>}
+	 */
 	async verifyCredentials(username, password) {
 		const result = await this._pool.query({
 			text: 'SELECT id, password FROM users WHERE username = $1',
@@ -53,23 +68,6 @@ class UsersService {
 		}
 
 		return id;
-	}
-
-	/**
-	 * @param {string} username
-	 *
-	 * @throws {BadRequest} if username already exists
-	 * @returns {Promise<void>}
-	 */
-	async _verifyUsername(username) {
-		const result = await this._pool.query({
-			text: 'SELECT id FROM users WHERE username = $1',
-			values: [username],
-		});
-
-		if (result.rowCount > 0) {
-			throw new BadRequest('Username already exists');
-		}
 	}
 
 	/**

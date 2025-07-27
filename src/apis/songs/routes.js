@@ -1,5 +1,6 @@
 /**
  * @param {import('./handler')} handler
+ * @returns {import('@hapi/hapi').ServerRoute[]}
  */
 module.exports = (handler) => [
 	{
@@ -10,21 +11,21 @@ module.exports = (handler) => [
 	{
 		method: 'GET',
 		path: '/songs',
-		handler: (request, h) => handler.getSongsHandler(request, h),
+		handler: (request) => handler.getSongsHandler(request),
 	},
 	{
 		method: 'GET',
 		path: '/songs/{id}',
-		handler: (request, h) => handler.getSongHandler(request, h),
+		handler: (request) => handler.getSongHandler(request),
 	},
 	{
 		method: 'PUT',
 		path: '/songs/{id}',
-		handler: (request, h) => handler.putSongHandler(request, h),
+		handler: (request) => handler.putSongHandler(request),
 	},
 	{
 		method: 'DELETE',
 		path: '/songs/{id}',
-		handler: (request, h) => handler.deleteSongHandler(request, h),
+		handler: (request) => handler.deleteSongHandler(request),
 	},
 ];

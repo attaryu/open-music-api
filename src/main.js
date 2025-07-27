@@ -43,23 +43,23 @@ async function init() {
 		{
 			plugin: require('./apis/albums'),
 			options: {
-				service: new (require('./services/postgres/albums-service'))(),
+				albumsService: new (require('./services/postgres/albums-service'))(),
 				validator: require('./validators/albums'),
-				response: responseMapper,
+				responseMapper,
 			},
 		},
 		{
 			plugin: require('./apis/songs'),
 			options: {
-				service: songsService,
+				songsService,
 				validator: require('./validators/songs'),
-				response: responseMapper,
+				responseMapper,
 			},
 		},
 		{
 			plugin: require('./apis/users'),
 			options: {
-				service: usersService,
+				usersService,
 				validator: require('./validators/users'),
 				responseMapper,
 			},

@@ -1,10 +1,10 @@
-const { Pool } = require('pg');
+const connection = require('../../databases/connection');
 
 const ForbiddenError = require('../../exceptions/forbidden-error');
 
 class CollaborationsService {
 	constructor() {
-		this._pool = new Pool();
+		this._pool = connection;
 	}
 
 	/**

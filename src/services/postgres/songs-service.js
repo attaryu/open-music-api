@@ -8,118 +8,137 @@ class SongsService {
 		this.db = connection;
 	}
 
+	/**
+	 * @param {{
+	 * 	title: string,
+	 * 	year: number,
+	 * 	performer: string,
+	 * 	genre: string,
+	 * 	duration: number,
+	 * 	albumId: string
+	 * }} songData
+	 *
+	 * @returns {Promise<string>}
+	 */
 	async createSong(songData) {
-		try {
-			const baseId = 'song-';
+		const baseId = 'song-';
 
-			const result = await this.db.query(
-				'INSERT INTO songs (id, title, year, performer, genre, duration, album_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-				// 21 based on database schema, 'id' is a VARCHAR(21)
-				[
-					baseId + generateId(21 - baseId.length),
-					songData.title,
-					songData.year,
-					songData.performer,
-					songData.genre,
-					songData.duration ?? null,
-					songData.albumId ?? null,
-				]
-			);
+		const result = await this.db.query(
+			'INSERT INTO songs (id, title, year, performer, genre, duration, album_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+			// 21 based on database schema, 'id' is a VARCHAR(21)
+			[
+				baseId + generateId(21 - baseId.length),
+				songData.title,
+				songData.year,
+				songData.performer,
+				songData.genre,
+				songData.duration ?? null,
+				songData.albumId ?? null,
+			]
+		);
 
-			return result.rows[0].id;
-		} catch (error) {
-			console.error('Error creating song:', error);
-			throw error;
-		}
+		return result.rows[0].id;
 	}
 
-	async getSongs({ title, performer }) {
-		try {
-			let query = 'SELECT id, title, performer FROM songs';
-			const params = [];
+	/**
+	 * @param {string} title
+	 * @param {string} performer
+	 *
+	 * @returns {Promise<Array>}
+	 */
+	async getSongs(title, performer) {
+		let query = 'SELECT id, title, performer FROM songs';
+		const params = [];
 
-			if (title || performer) {
-				query += ' WHERE';
+		if (title || performer) {
+			query += ' WHERE';
 
-				if (title) {
-					query += ` LOWER(title) LIKE LOWER($${params.length + 1})`;
-					params.push(`%${title}%`);
-				}
-
-				if (performer) {
-					if (params.length > 0) {
-						query += ' AND';
-					}
-
-					query += ` LOWER(performer) LIKE LOWER($${params.length + 1})`;
-					params.push(`%${performer}%`);
-				}
+			if (title) {
+				query += ` LOWER(title) LIKE LOWER($${params.length + 1})`;
+				params.push(`%${title}%`);
 			}
 
-			const result = await this.db.query(query, params);
+			if (performer) {
+				if (params.length > 0) {
+					query += ' AND';
+				}
 
-			return result.rows;
-		} catch (error) {
-			console.error('Error fetching songs:', error);
-			throw error;
+				query += ` LOWER(performer) LIKE LOWER($${params.length + 1})`;
+				params.push(`%${performer}%`);
+			}
 		}
+
+		const result = await this.db.query(query, params);
+
+		return result.rows;
 	}
 
+	/**
+	 * @param {string} songId
+	 *
+	 * @throws {NotFoundError}
+	 * @returns {Promise<Object>}
+	 */
 	async getSongById(songId) {
-		try {
-			const result = await this.db.query('SELECT * FROM songs WHERE id = $1', [
-				songId,
-			]);
+		const result = await this.db.query('SELECT * FROM songs WHERE id = $1', [
+			songId,
+		]);
 
-			if (result.rows.length === 0) {
-				throw new NotFoundError('Song not found');
-			}
-
-			return result.rows[0];
-		} catch (error) {
-			console.error('Error fetching song by ID:', error);
-			throw error;
+		if (result.rows.length === 0) {
+			throw new NotFoundError('Song not found');
 		}
+
+		return result.rows[0];
 	}
 
+	/**
+	 * @param {string} songId
+	 * @param {{
+	 * 	title: string,
+	 * 	year: number,
+	 * 	performer: string,
+	 *  genre: string,
+	 *  duration: number,
+	 *  albumId: string
+	 * }} songData
+	 *
+	 * @throws {NotFoundError}
+	 * @returns {Promise<string>}
+	 */
 	async updateSong(songId, songData) {
-		try {
-			const result = await this.db.query(
-				'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, album_id = $6 WHERE id = $7 RETURNING id',
-				[
-					songData.title,
-					songData.year,
-					songData.performer,
-					songData.genre,
-					songData.duration ?? null,
-					songData.albumId ?? null,
-					songId,
-				]
-			);
+		const result = await this.db.query(
+			'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, album_id = $6 WHERE id = $7 RETURNING id',
+			[
+				songData.title,
+				songData.year,
+				songData.performer,
+				songData.genre,
+				songData.duration ?? null,
+				songData.albumId ?? null,
+				songId,
+			]
+		);
 
-			if (result.rowCount === 0) {
-				throw new NotFoundError('Song not found');
-			}
-
-			return result.rows[0].id;
-		} catch (error) {
-			console.error('Error updating song:', error);
-			throw error;
+		if (result.rowCount === 0) {
+			throw new NotFoundError('Song not found');
 		}
+
+		return result.rows[0].id;
 	}
 
+	/**
+	 * @param {string} songId
+	 *
+	 * @throws {NotFoundError}
+	 * @returns {Promise<void>}
+	 */
 	async deleteSong(songId) {
-		try {
-			const result = await this.db.query('DELETE FROM songs WHERE id = $1', [
-				songId,
-			]);
+		const result = await this.db.query('DELETE FROM songs WHERE id = $1', [
+			songId,
+		]);
 
-			if (result.rowCount === 0) {
-				throw new NotFoundError('Song not found');
-			}
-		} catch (error) {
-			console.error('Error deleting song:', error);
-			throw error;
+		if (result.rowCount === 0) {
+			throw new NotFoundError('Song not found');
 		}
 	}
 }

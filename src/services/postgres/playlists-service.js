@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+const connection = require('../../databases/connection');
 
 const NotFoundError = require('../../exceptions/not-found-error');
 const ForbiddenError = require('../../exceptions/forbidden-error');
@@ -7,7 +7,7 @@ const generateId = require('../../utils/generate-id');
 
 class PlaylistsService {
 	constructor() {
-		this._pool = new Pool();
+		this._pool = connection;
 	}
 
 	/**
@@ -30,7 +30,7 @@ class PlaylistsService {
 	/**
 	 * @param {string} userId
 	 *
-	 * @returns {Promise<Array<{ id: string, name: string, username: string }>>}
+	 * @returns {Promise<Array>}
 	 */
 	async getPlaylists(userId) {
 		const result = await this._pool.query({
@@ -56,6 +56,8 @@ class PlaylistsService {
 
 	/**
 	 * @param {string} playlistId
+	 * 
+	 * @returns {Promise<Object>}
 	 */
 	async getPlaylistSongs(playlistId) {
 		const result = await this._pool.query({
@@ -106,6 +108,7 @@ class PlaylistsService {
 	 *
 	 * @throws {NotFoundError} If the playlist does not exist
 	 * @throws {ForbiddenError} If the user is not the owner of the playlist
+	 * @returns {Promise<void>}
 	 */
 	async verifyPlaylistOwner(playlistId, userId) {
 		const result = await this._pool.query({
