@@ -61,11 +61,29 @@ class AuthenticationHandler {
 		const userId = this._tokenManager.verifyToken(refreshToken);
 		await this._authenticationsService.verifyRefreshToken(refreshToken, userId);
 
-		const accessToken = this._tokenManager.generateAccessToken(userId);		
-		
+		const accessToken = this._tokenManager.generateAccessToken(userId);
+
 		return this._responseMapper.success('Access token refreshed', {
 			accessToken,
 		});
+	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 */
+	async deleteAuthenticationHandler(request) {
+		this._validator.validateDeleteAuthenticationPayload(request.payload);
+		const { refreshToken } = request.payload;
+
+		const userId = this._tokenManager.verifyToken(refreshToken);
+		await this._authenticationsService.verifyRefreshToken(refreshToken, userId);
+
+		await this._authenticationsService.deleteAuthenticationToken(
+			refreshToken,
+			userId
+		);
+
+		return this._responseMapper.success('Refresh token revoked');
 	}
 }
 
