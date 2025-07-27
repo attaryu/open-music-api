@@ -25,10 +25,10 @@ exports.up = (pgm) => {
 		},
 	});
 
-  pgm.addConstraint('authentications', 'fk_users_id', {
+  pgm.addConstraint('authentications', 'fk_authentications.user_id_users.id', {
     foreignKeys: {
       columns: 'user_id',
-      references: 'USERS(id)',
+      references: 'users(id)',
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     }
