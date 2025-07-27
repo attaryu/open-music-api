@@ -33,7 +33,8 @@ async function init() {
 	});
 
 	const usersService = new (require('./services/postgres/users-service'))();
-	
+	const songsService = new (require('./services/postgres/songs-service'))();
+
 	await server.register([
 		{
 			plugin: require('./apis/albums'),
@@ -46,7 +47,7 @@ async function init() {
 		{
 			plugin: require('./apis/songs'),
 			options: {
-				service: new (require('./services/postgres/songs-service'))(),
+				service: songsService,
 				validator: require('./validators/songs'),
 				response: responseMapper,
 			},
@@ -62,7 +63,8 @@ async function init() {
 		{
 			plugin: require('./apis/authentications'),
 			options: {
-				authenticationsService: new (require('./services/postgres/authentications-service'))(),
+				authenticationsService:
+					new (require('./services/postgres/authentications-service'))(),
 				usersService,
 				tokenManager: new (require('./providers/token-manager'))(),
 				validator: require('./validators/authentications'),
@@ -72,7 +74,9 @@ async function init() {
 		{
 			plugin: require('./apis/playlists'),
 			options: {
-				playlistsService: new (require('./services/postgres/playlists-service'))(),
+				playlistsService:
+					new (require('./services/postgres/playlists-service'))(),
+				songsService,
 				validator: require('./validators/playlists'),
 				responseMapper,
 			},
