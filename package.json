@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "SET NODE_ENV=\"production\" & node src/main.js",
-    "dev": "SET NODE_ENV=\"development\" & nodemon src/main.js",
+    "start": "node src/main.js",
+    "dev": "nodemon src/main.js",
     "db:migrate": "node-pg-migrate",
     "lint": "eslint ."
   },
