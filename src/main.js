@@ -97,6 +97,15 @@ async function init() {
 				responseMapper,
 			},
 		},
+		{
+			plugin: require('./apis/exports'),
+			options: {
+				messageQueueService: require('./services/message-queue'),
+				playlistsService,
+				validator: require('./validators/exports'),
+				responseMapper,
+			},
+		},
 	]);
 
 	server.ext('onPreResponse', (request, h) => {
