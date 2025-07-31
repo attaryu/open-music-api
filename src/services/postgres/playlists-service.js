@@ -19,10 +19,10 @@ class PlaylistsService {
 	async addPlaylist(name, userId) {
 		const baseId = 'playlist-';
 
-		const result = await this._pool.query({
-			text: 'INSERT INTO playlists(id, name, owner) VALUES($1, $2, $3) RETURNING id',
-			values: [baseId + generateId(25 - baseId.length), name, userId],
-		});
+		const result = await this._pool.query(
+			'INSERT INTO playlists(id, name, owner) VALUES($1, $2, $3) RETURNING id',
+			[baseId + generateId(25 - baseId.length), name, userId]
+		);
 
 		return result.rows[0].id;
 	}
@@ -33,10 +33,10 @@ class PlaylistsService {
 	 * @returns {Promise<Array>}
 	 */
 	async getPlaylists(userId) {
-		const result = await this._pool.query({
-			text: 'SELECT p.id, p.name, u.username FROM playlists AS p LEFT JOIN users AS u ON p.owner = u.id LEFT JOIN collaborations AS c ON p.id = c.playlist_id WHERE p.owner = $1 OR c.user_id = $1',
-			values: [userId],
-		});
+		const result = await this._pool.query(
+			'SELECT p.id, p.name, u.username FROM playlists AS p LEFT JOIN users AS u ON p.owner = u.id LEFT JOIN collaborations AS c ON p.id = c.playlist_id WHERE p.owner = $1 OR c.user_id = $1',
+			[userId]
+		);
 
 		return result.rows;
 	}
@@ -48,22 +48,22 @@ class PlaylistsService {
 	 * @returns {Promise<void>}
 	 */
 	async addSongToPlaylist(playlistId, songId) {
-		await this._pool.query({
-			text: 'INSERT INTO playlist_songs (playlist_id, song_id) VALUES($1, $2)',
-			values: [playlistId, songId],
-		});
+		await this._pool.query(
+			'INSERT INTO playlist_songs (playlist_id, song_id) VALUES($1, $2)',
+			[playlistId, songId]
+		);
 	}
 
 	/**
 	 * @param {string} playlistId
-	 * 
+	 *
 	 * @returns {Promise<Object>}
 	 */
 	async getPlaylistSongs(playlistId) {
-		const result = await this._pool.query({
-			text: 'SELECT p.id, p.name, u.username, s.id AS "songId", s.title, s.performer FROM songs AS s LEFT JOIN playlist_songs ON s.id = playlist_songs.song_id LEFT JOIN playlists AS p ON playlist_songs.playlist_id = p.id LEFT JOIN users AS u ON p.owner = u.id WHERE p.id = $1',
-			values: [playlistId],
-		});
+		const result = await this._pool.query(
+			'SELECT p.id, p.name, u.username, s.id AS "songId", s.title, s.performer FROM songs AS s LEFT JOIN playlist_songs ON s.id = playlist_songs.song_id LEFT JOIN playlists AS p ON playlist_songs.playlist_id = p.id LEFT JOIN users AS u ON p.owner = u.id WHERE p.id = $1',
+			[playlistId]
+		);
 
 		return {
 			id: result.rows[0].id,
@@ -84,10 +84,10 @@ class PlaylistsService {
 	 * @returns {Promise<void>}
 	 */
 	async deletePlaylistSong(playlistId, songId) {
-		await this._pool.query({
-			text: 'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2',
-			values: [playlistId, songId],
-		});
+		await this._pool.query(
+			'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2',
+			[playlistId, songId]
+		);
 	}
 
 	/**
@@ -96,10 +96,7 @@ class PlaylistsService {
 	 * @returns {Promise<void>}
 	 */
 	async deletePlaylist(playlistId) {
-		await this._pool.query({
-			text: 'DELETE FROM playlists WHERE id = $1',
-			values: [playlistId],
-		});
+		await this._pool.query('DELETE FROM playlists WHERE id = $1', [playlistId]);
 	}
 
 	/**
@@ -111,10 +108,10 @@ class PlaylistsService {
 	 * @returns {Promise<void>}
 	 */
 	async verifyPlaylistOwner(playlistId, userId) {
-		const result = await this._pool.query({
-			text: 'SELECT owner FROM playlists WHERE id = $1',
-			values: [playlistId],
-		});
+		const result = await this._pool.query(
+			'SELECT owner FROM playlists WHERE id = $1',
+			[playlistId]
+		);
 
 		if (result.rowCount <= 0) {
 			throw new NotFoundError('Playlist not found');

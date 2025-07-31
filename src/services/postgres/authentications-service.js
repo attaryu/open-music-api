@@ -18,24 +18,24 @@ class AuthenticationsService {
 	async addAuthenticationToken(token, userId) {
 		const baseId = 'auth-';
 
-		await this._pool.query({
-			text: 'INSERT INTO authentications (id, user_id, token) VALUES ($1, $2, $3)',
-			values: [baseId + generateId(50 - baseId.length), userId, token],
-		});
+		await this._pool.query(
+			'INSERT INTO authentications (id, user_id, token) VALUES ($1, $2, $3)',
+			[baseId + generateId(50 - baseId.length), userId, token]
+		);
 	}
 
 	/**
-	 * @param {string} token 
+	 * @param {string} token
 	 * @param {string} userId
-	 * 
+	 *
 	 * @throws {BadRequestError}
 	 * @returns {Promise<void>}
 	 */
 	async verifyRefreshToken(token, userId) {
-		const result = await this._pool.query({
-			text: 'SELECT token FROM authentications WHERE token = $1 AND user_id = $2',
-			values: [token, userId],
-		});
+		const result = await this._pool.query(
+			'SELECT token FROM authentications WHERE token = $1 AND user_id = $2',
+			[token, userId]
+		);
 
 		if (result.rowCount <= 0) {
 			throw new BadRequestError('Refresh token not found');
@@ -49,10 +49,10 @@ class AuthenticationsService {
 	 * @returns {Promise<void>}
 	 */
 	async deleteAuthenticationToken(token, userId) {
-		await this._pool.query({
-			text: 'DELETE FROM authentications WHERE token = $1 AND user_id = $2',
-			values: [token, userId],
-		});
+		await this._pool.query(
+			'DELETE FROM authentications WHERE token = $1 AND user_id = $2',
+			[token, userId]
+		);
 	}
 }
 
