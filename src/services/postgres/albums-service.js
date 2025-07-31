@@ -34,7 +34,7 @@ class AlbumsService {
 	 */
 	async getAlbumById(albumId) {
 		const result = await this.db.query(
-			'SELECT a.id, a.name, a.year, s.id AS "songId", s.title, s.performer FROM albums a LEFT JOIN songs s ON a.id = s.album_id WHERE a.id = $1',
+			'SELECT a.id, a.name, a.year, a.cover, s.id AS "songId", s.title, s.performer FROM albums a LEFT JOIN songs s ON a.id = s.album_id WHERE a.id = $1',
 			[albumId]
 		);
 
@@ -46,6 +46,7 @@ class AlbumsService {
 			id: result.rows[0].id,
 			name: result.rows[0].name,
 			year: result.rows[0].year,
+			coverUrl: result.rows[0].cover,
 			songs: result.rows[0].songId
 				? result.rows.map((row) => ({
 						id: row.songId,
@@ -79,7 +80,7 @@ class AlbumsService {
 
 	/**
 	 * @param {string} albumId
-	 * 
+	 *
 	 * @throws {NotFoundError}
 	 * @returns {Promise<void>}
 	 */
@@ -91,6 +92,24 @@ class AlbumsService {
 		if (result.rowCount === 0) {
 			throw new NotFoundError('Album not found');
 		}
+	}
+
+	/**
+	 * @param {string} albumId
+	 * @param {string} coverUrl
+	 * @returns {Promise<string>}
+	 */
+	async updateAlbumCover(albumId, coverUrl) {
+		const result = await this.db.query(
+			'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
+			[coverUrl, albumId]
+		);
+
+		if (result.rows.length === 0) {
+			throw new NotFoundError('Album not found');
+		}
+
+		return result.rows[0].id;
 	}
 }
 

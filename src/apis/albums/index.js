@@ -8,11 +8,20 @@ module.exports = {
 	 * @param {import('@hapi/hapi').Server} server
 	 * @param {Object} options
 	 * @param {import('../../services/postgres/albums-service')} options.albumsService
+	 * @param {import('../../services/storages/storage-service')} options.storageService
 	 * @param {import('../../validators/albums')} options.validator
 	 * @param {import('../../utils/response-mapper')} options.responseMapper
 	 */
-	register: async (server, { albumsService, validator, responseMapper }) => {
-		const albumHandler = new AlbumHandler(albumsService, validator, responseMapper);
+	register: async (
+		server,
+		{ albumsService, storageService, validator, responseMapper }
+	) => {
+		const albumHandler = new AlbumHandler(
+			albumsService,
+			storageService,
+			validator,
+			responseMapper
+		);
 
 		server.route(routes(albumHandler));
 	},

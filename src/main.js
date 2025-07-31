@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const hapi = require('@hapi/hapi');
+const path = require('node:path');
 
 const ClientError = require('./exceptions/client-error');
 
@@ -12,9 +13,10 @@ async function init() {
 		host: process.env.HOST ?? 'localhost',
 	});
 
-	await server.register({
-		plugin: require('@hapi/jwt'),
-	});
+	await server.register([
+		{ plugin: require('@hapi/jwt') },
+		{ plugin: require('@hapi/inert') },
+	]);
 
 	server.auth.strategy('openmusic_jwt', 'jwt', {
 		keys: process.env.ACCESS_TOKEN_KEY,
@@ -44,6 +46,9 @@ async function init() {
 			plugin: require('./apis/albums'),
 			options: {
 				albumsService: new (require('./services/postgres/albums-service'))(),
+				storageService: new (require('./services/storages/storage-service'))(
+					path.resolve('public', 'covers')
+				),
 				validator: require('./validators/albums'),
 				responseMapper,
 			},
