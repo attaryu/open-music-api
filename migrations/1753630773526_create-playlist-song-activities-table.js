@@ -1,8 +1,3 @@
-/**
- * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
- */
-exports.shorthands = undefined;
-
 const playlistIdConstraint =
 	'fk_playlist_song_activities.playlist_id_playlists.id';
 const songIdConstraint = 'fk_playlist_song_activities.song_id_songs.id';
