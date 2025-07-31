@@ -100,6 +100,22 @@ class AlbumHandler {
 			)
 			.code(201);
 	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 * @param {import('@hapi/hapi').ResponseToolkit} h
+	 */
+	async postAlbumLikeHandler(request, h) {
+		const { id } = request.params;
+		await this._albumsService.getAlbumById(id);
+		
+		const { userId } = request.auth.credentials;
+		await this._albumsService.updateAlbumLikes(id, userId);
+		
+		return h
+			.response(this._responseMapper.success('Album liked successfully'))
+			.code(201);
+	}
 }
 
 module.exports = AlbumHandler;

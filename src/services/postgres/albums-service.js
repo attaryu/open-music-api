@@ -1,4 +1,6 @@
 const connection = require('../../databases/connection');
+
+const BadRequestError = require('../../exceptions/bad-request-error');
 const NotFoundError = require('../../exceptions/not-found-error');
 
 const generateId = require('../../utils/generate-id');
@@ -97,6 +99,7 @@ class AlbumsService {
 	/**
 	 * @param {string} albumId
 	 * @param {string} coverUrl
+	 * 
 	 * @returns {Promise<string>}
 	 */
 	async updateAlbumCover(albumId, coverUrl) {
@@ -110,6 +113,24 @@ class AlbumsService {
 		}
 
 		return result.rows[0].id;
+	}
+
+	/**
+	 * @param {string} albumId 
+	 * @param {string} userId 
+	 * 
+	 * @throws {BadRequestError}
+	 * @returns {Promise<void>}
+	 */
+	async updateAlbumLikes(albumId, userId) {
+		const result = await this.db.query(
+			'INSERT INTO user_albums_like (album_id, user_id) VALUES ($1, $2) ON CONFLICT (album_id, user_id) DO NOTHING RETURNING album_id',
+			[albumId, userId]
+		);
+
+		if (result.rowCount === 0) {
+			throw new BadRequestError('Album already liked');
+		}
 	}
 }
 
