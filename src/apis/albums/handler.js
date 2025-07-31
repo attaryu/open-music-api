@@ -129,6 +129,18 @@ class AlbumHandler {
 			{ likes }
 		);
 	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 */
+	async deleteAlbumLikeHandler(request) {
+		const { id } = request.params;
+		const { userId } = request.auth.credentials;
+
+		await this._albumsService.deleteAlbumLike(id, userId);
+
+		return this._responseMapper.success('Album unliked successfully');
+	}
 }
 
 module.exports = AlbumHandler;

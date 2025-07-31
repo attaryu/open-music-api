@@ -134,8 +134,8 @@ class AlbumsService {
 	}
 
 	/**
-	 * @param {string} albumId 
-	 * 
+	 * @param {string} albumId
+	 *
 	 * @returns {Promise<number>}
 	 */
 	async getAlbumLikesCount(albumId) {
@@ -149,6 +149,19 @@ class AlbumsService {
 		}
 
 		return parseInt(result.rows[0].count, 10);
+	}
+
+	/**
+	 * @param {string} albumId 
+	 * @param {string} userId 
+	 * 
+	 * @returns {Promise<void>}
+	 */
+	async deleteAlbumLike(albumId, userId) {
+		await this.db.query(
+			'DELETE FROM user_albums_like WHERE album_id = $1 AND user_id = $2',
+			[albumId, userId]
+		);
 	}
 }
 
