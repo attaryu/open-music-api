@@ -108,13 +108,26 @@ class AlbumHandler {
 	async postAlbumLikeHandler(request, h) {
 		const { id } = request.params;
 		await this._albumsService.getAlbumById(id);
-		
+
 		const { userId } = request.auth.credentials;
 		await this._albumsService.updateAlbumLikes(id, userId);
-		
+
 		return h
 			.response(this._responseMapper.success('Album liked successfully'))
 			.code(201);
+	}
+
+	/**
+	 * @param {import('@hapi/hapi').Request} request
+	 */
+	async getAlbumLikesHandler(request) {
+		const { id } = request.params;
+		const likes = await this._albumsService.getAlbumLikesCount(id);
+
+		return this._responseMapper.success(
+			'Album likes count retrieved successfully',
+			{ likes }
+		);
 	}
 }
 

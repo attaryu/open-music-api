@@ -99,7 +99,7 @@ class AlbumsService {
 	/**
 	 * @param {string} albumId
 	 * @param {string} coverUrl
-	 * 
+	 *
 	 * @returns {Promise<string>}
 	 */
 	async updateAlbumCover(albumId, coverUrl) {
@@ -116,9 +116,9 @@ class AlbumsService {
 	}
 
 	/**
-	 * @param {string} albumId 
-	 * @param {string} userId 
-	 * 
+	 * @param {string} albumId
+	 * @param {string} userId
+	 *
 	 * @throws {BadRequestError}
 	 * @returns {Promise<void>}
 	 */
@@ -131,6 +131,24 @@ class AlbumsService {
 		if (result.rowCount === 0) {
 			throw new BadRequestError('Album already liked');
 		}
+	}
+
+	/**
+	 * @param {string} albumId 
+	 * 
+	 * @returns {Promise<number>}
+	 */
+	async getAlbumLikesCount(albumId) {
+		const result = await this.db.query(
+			'SELECT COUNT(*) FROM user_albums_like WHERE album_id = $1',
+			[albumId]
+		);
+
+		if (result.rows.length === 0) {
+			throw new NotFoundError('Album not found');
+		}
+
+		return parseInt(result.rows[0].count, 10);
 	}
 }
 
