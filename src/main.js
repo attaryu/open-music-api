@@ -49,6 +49,7 @@ async function init() {
 				storageService: new (require('./services/storages/storage-service'))(
 					path.resolve('public', 'covers')
 				),
+				cacheStorageService: new (require('./services/redis/cache-storage-service'))(),
 				validator: require('./validators/albums'),
 				responseMapper,
 			},

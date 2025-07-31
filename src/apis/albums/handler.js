@@ -2,12 +2,20 @@ class AlbumHandler {
 	/**
 	 * @param {import('../../services/postgres/albums-service')} albumsService
 	 * @param {import('../../services/storages/storage-service')} storageService
+	 * @param {import('../../services/redis/cache-storage-service')} cacheStorageService
 	 * @param {import('../../validators/albums')} validator
-	 * @param {import('../../utils/response-mapper')} responseMapper
+	 * @param {import('../..//utils/response-mapper')} responseMapper
 	 */
-	constructor(albumsService, storageService, validator, responseMapper) {
+	constructor(
+		albumsService,
+		storageService,
+		cacheStorageService,
+		validator,
+		responseMapper
+	) {
 		this._albumsService = albumsService;
 		this._storageService = storageService;
+		this._cacheStorageService = cacheStorageService;
 		this._validator = validator;
 		this._responseMapper = responseMapper;
 	}
@@ -73,6 +81,7 @@ class AlbumHandler {
 	 * @param {import('@hapi/hapi').ResponseToolkit} h
 	 */
 	async postAlbumCoverHandler(request, h) {
+		const { cover } = request.payload;
 		this._validator.validateCoverAlbumPayload(cover.hapi.headers);
 
 		const { id } = request.params;
@@ -83,7 +92,6 @@ class AlbumHandler {
 			await this._storageService.deleteFile(filename);
 		}
 
-		const { cover } = request.payload;
 		const coverFilename = await this._storageService.writeFile(
 			cover,
 			cover.hapi
@@ -111,6 +119,7 @@ class AlbumHandler {
 
 		const { userId } = request.auth.credentials;
 		await this._albumsService.updateAlbumLikes(id, userId);
+		this._cacheStorageService.delete(this._getAlbumLikeCacheKey(id));
 
 		return h
 			.response(this._responseMapper.success('Album liked successfully'))
@@ -119,15 +128,33 @@ class AlbumHandler {
 
 	/**
 	 * @param {import('@hapi/hapi').Request} request
+	 * @param {import('@hapi/hapi').ResponseToolkit} h
 	 */
-	async getAlbumLikesHandler(request) {
+	async getAlbumLikesHandler(request, h) {
 		const { id } = request.params;
-		const likes = await this._albumsService.getAlbumLikesCount(id);
+		const cacheKey = this._getAlbumLikeCacheKey(id);
+		const responseMessage = 'Album likes count retrieved successfully';
 
-		return this._responseMapper.success(
-			'Album likes count retrieved successfully',
-			{ likes }
-		);
+		try {
+			const likes = await this._cacheStorageService.get(cacheKey);
+
+			if (likes === null) {
+				throw new Error('Cache miss');
+			}
+
+			return h
+				.response(
+					this._responseMapper.success(responseMessage, {
+						likes: parseInt(likes, 10),
+					})
+				)
+				.header('X-Data-Source', 'cache');
+		} catch {
+			const likes = await this._albumsService.getAlbumLikesCount(id);
+			await this._cacheStorageService.set(cacheKey, likes);
+
+			return this._responseMapper.success(responseMessage, { likes });
+		}
 	}
 
 	/**
@@ -138,8 +165,17 @@ class AlbumHandler {
 		const { userId } = request.auth.credentials;
 
 		await this._albumsService.deleteAlbumLike(id, userId);
+		this._cacheStorageService.delete(this._getAlbumLikeCacheKey(id));
 
 		return this._responseMapper.success('Album unliked successfully');
+	}
+
+	/**
+	 * @param {string} id
+	 * @returns {string}
+	 */
+	_getAlbumLikeCacheKey(id) {
+		return `album:${id}:likes`;
 	}
 }
 
