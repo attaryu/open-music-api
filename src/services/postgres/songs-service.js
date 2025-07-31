@@ -46,31 +46,13 @@ class SongsService {
 	 *
 	 * @returns {Promise<Array>}
 	 */
-	async getSongs(title, performer) {
-		let query = 'SELECT id, title, performer FROM songs';
-		const params = [];
+	async getSongs(title = '', performer = '') {
+		const { rows } = await this.db.query(
+			'SELECT id, title, performer FROM songs WHERE title ILIKE $1 and performer ILIKE $2',
+			[`%${title}%`, `%${performer}%`]
+		);
 
-		if (title || performer) {
-			query += ' WHERE';
-
-			if (title) {
-				query += ` LOWER(title) LIKE LOWER($${params.length + 1})`;
-				params.push(`%${title}%`);
-			}
-
-			if (performer) {
-				if (params.length > 0) {
-					query += ' AND';
-				}
-
-				query += ` LOWER(performer) LIKE LOWER($${params.length + 1})`;
-				params.push(`%${performer}%`);
-			}
-		}
-
-		const result = await this.db.query(query, params);
-
-		return result.rows;
+		return rows;
 	}
 
 	/**
