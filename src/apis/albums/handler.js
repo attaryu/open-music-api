@@ -132,29 +132,27 @@ class AlbumHandler {
 	 */
 	async getAlbumLikesHandler(request, h) {
 		const { id } = request.params;
-		const cacheKey = this._getAlbumLikeCacheKey(id);
+
+		const likes = await this._cacheStorageService.getFromCacheOrCallback(
+			this._getAlbumLikeCacheKey(id),
+			() => this._albumsService.getAlbumLikesCount(id)
+		);
+
 		const responseMessage = 'Album likes count retrieved successfully';
 
-		try {
-			const likes = await this._cacheStorageService.get(cacheKey);
-
-			if (likes === null) {
-				throw new Error('Cache miss');
-			}
-
+		if (likes.source === 'cache') {
 			return h
 				.response(
 					this._responseMapper.success(responseMessage, {
-						likes: parseInt(likes, 10),
+						likes: parseInt(likes.data, 10),
 					})
 				)
 				.header('X-Data-Source', 'cache');
-		} catch {
-			const likes = await this._albumsService.getAlbumLikesCount(id);
-			await this._cacheStorageService.set(cacheKey, likes);
-
-			return this._responseMapper.success(responseMessage, { likes });
 		}
+
+		return this._responseMapper.success(responseMessage, {
+			likes: likes.data,
+		});
 	}
 
 	/**

@@ -11,9 +11,9 @@ class CacheStorageService {
 	}
 
 	/**
-	 * @param {string} key 
-	 * @param {string} value 
-	 * 
+	 * @param {string} key
+	 * @param {string} value
+	 *
 	 * @returns {Promise<void>}
 	 */
 	async set(key, value) {
@@ -21,8 +21,8 @@ class CacheStorageService {
 	}
 
 	/**
-	 * @param {string} key 
-	 * 
+	 * @param {string} key
+	 *
 	 * @returns {Promise<string|null>}
 	 */
 	async get(key) {
@@ -30,12 +30,37 @@ class CacheStorageService {
 	}
 
 	/**
-	 * @param {string} key 
-	 * 
+	 * @param {string} key
+	 *
 	 * @returns {Promise<void>}
 	 */
 	async delete(key) {
 		await this._cache.del(key);
+	}
+
+	/**
+	 * Wrapper for easy cache handling.
+	 *
+	 * @param {string} cacheKey
+	 * @param {() => Promise<any>} originCallback Function to call and return actual data if cache miss.
+	 *
+	 * @returns {Promise<{data: any, source: 'cache' | 'origin'}>}
+	 */
+	async getFromCacheOrCallback(cacheKey, originCallback) {
+		try {
+			const data = await this.get(cacheKey);
+
+			if (data === null) {
+				throw new Error('Cache miss');
+			}
+
+			return { data, source: 'cache' };
+		} catch {
+			const data = await originCallback();
+			await this.set(cacheKey, data);
+
+			return { data, source: 'origin' };
+		}
 	}
 }
 
