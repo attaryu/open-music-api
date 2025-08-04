@@ -2,8 +2,6 @@ const connection = require('../../databases/connection');
 
 const BadRequestError = require('../../exceptions/bad-request-error');
 
-const generateId = require('../../utils/generate-id');
-
 class AuthenticationsService {
 	constructor() {
 		this._pool = connection;
@@ -16,11 +14,9 @@ class AuthenticationsService {
 	 * @returns {Promise<void>}
 	 */
 	async addAuthenticationToken(token, userId) {
-		const baseId = 'auth-';
-
 		await this._pool.query(
-			'INSERT INTO authentications (id, user_id, token) VALUES ($1, $2, $3)',
-			[baseId + generateId(50 - baseId.length), userId, token]
+			'INSERT INTO authentications (user_id, token) VALUES ($1, $2)',
+			[userId, token]
 		);
 	}
 
