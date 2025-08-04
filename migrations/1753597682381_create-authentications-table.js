@@ -36,6 +36,6 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-  pgm.dropConstraint('authentications', 'fk_users_id');
+  pgm.dropConstraint('authentications', 'fk_authentications.user_id_users.id');
   pgm.dropTable('authentications');
 };

@@ -18,5 +18,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-	pgm.dropColumn('albums', 'cover_url');
+	pgm.dropColumn('albums', 'cover');
 };
