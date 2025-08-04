@@ -14,6 +14,11 @@ exports.up = (pgm) => {
     notNull: true,
   });
 
+  pgm.alterColumn('playlists', 'owner', {
+    type: 'VARCHAR(36)',
+    notNull: true,
+  })
+
   pgm.alterColumn('collaborations', 'user_id', {
     type: 'VARCHAR(36)',
     notNull: true,
