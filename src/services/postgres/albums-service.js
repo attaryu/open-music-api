@@ -3,8 +3,6 @@ const connection = require('../../databases/connection');
 const BadRequestError = require('../../exceptions/bad-request-error');
 const NotFoundError = require('../../exceptions/not-found-error');
 
-const generateId = require('../../utils/generate-id');
-
 class AlbumsService {
 	constructor() {
 		this.db = connection;
@@ -17,12 +15,9 @@ class AlbumsService {
 	 * @returns {Promise<string>}
 	 */
 	async createAlbum(name, year) {
-		const baseId = 'album-';
-
 		const result = await this.db.query(
-			'INSERT INTO albums (id, name, year) VALUES ($1, $2, $3) RETURNING id',
-			// 22 based on database schema, 'id' is a VARCHAR(22)
-			[baseId + generateId(22 - baseId.length), name, year]
+			'INSERT INTO albums (name, year) VALUES ($1, $2) RETURNING id',
+			[name, year]
 		);
 
 		return result.rows[0].id;
@@ -152,9 +147,9 @@ class AlbumsService {
 	}
 
 	/**
-	 * @param {string} albumId 
-	 * @param {string} userId 
-	 * 
+	 * @param {string} albumId
+	 * @param {string} userId
+	 *
 	 * @returns {Promise<void>}
 	 */
 	async deleteAlbumLike(albumId, userId) {
