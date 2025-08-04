@@ -6,8 +6,6 @@ const BadRequest = require('../../exceptions/bad-request-error');
 const UnauthorizedError = require('../../exceptions/unauthorized-error');
 const NotFoundError = require('../../exceptions/not-found-error');
 
-const generateId = require('../../utils/generate-id');
-
 class UsersService {
 	constructor() {
 		this._pool = connection;
@@ -29,16 +27,9 @@ class UsersService {
 			throw new BadRequest('Username already exists');
 		}
 
-		const baseId = 'user-';
 		const result = await this._pool.query(
-			'INSERT INTO users (id, username, password, fullname) VALUES($1, $2, $3, $4) RETURNING id',
-			[
-				// 22 based on database id field
-				baseId + generateId(22 - baseId.length),
-				user.username,
-				await bcrypt.hash(user.password, 10),
-				user.fullname,
-			]
+			'INSERT INTO users (username, password, fullname) VALUES($1, $2, $3) RETURNING id',
+			[user.username, await bcrypt.hash(user.password, 10), user.fullname]
 		);
 
 		return result.rows[0].id;
