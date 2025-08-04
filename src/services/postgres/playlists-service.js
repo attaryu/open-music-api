@@ -3,8 +3,6 @@ const connection = require('../../databases/connection');
 const NotFoundError = require('../../exceptions/not-found-error');
 const ForbiddenError = require('../../exceptions/forbidden-error');
 
-const generateId = require('../../utils/generate-id');
-
 class PlaylistsService {
 	constructor() {
 		this._pool = connection;
@@ -17,11 +15,9 @@ class PlaylistsService {
 	 * @returns {Promise<string>}
 	 */
 	async addPlaylist(name, userId) {
-		const baseId = 'playlist-';
-
 		const result = await this._pool.query(
-			'INSERT INTO playlists(id, name, owner) VALUES($1, $2, $3) RETURNING id',
-			[baseId + generateId(25 - baseId.length), name, userId]
+			'INSERT INTO playlists(name, owner) VALUES($1, $2) RETURNING id',
+			[name, userId]
 		);
 
 		return result.rows[0].id;
