@@ -40,6 +40,8 @@ async function init() {
 		new (require('./services/postgres/collaborations-service'))();
 	const playlistsService =
 		new (require('./services/postgres/playlists-service'))();
+	const cacheStorageService =
+		new (require('./services/redis/cache-storage-service'))();
 
 	await server.register([
 		{
@@ -49,7 +51,7 @@ async function init() {
 				storageService: new (require('./services/storages/storage-service'))(
 					path.resolve('public', 'covers')
 				),
-				cacheStorageService: new (require('./services/redis/cache-storage-service'))(),
+				cacheStorageService,
 				validator: require('./validators/albums'),
 				responseMapper,
 			},
@@ -76,6 +78,7 @@ async function init() {
 				authenticationsService:
 					new (require('./services/postgres/authentications-service'))(),
 				usersService,
+				cacheStorageService,
 				tokenManager: new (require('./providers/token-manager'))(),
 				validator: require('./validators/authentications'),
 				responseMapper,
@@ -89,6 +92,7 @@ async function init() {
 				songsService,
 				playlistSongActivitiesService:
 					new (require('./services/postgres/playlist-song-activities-service'))(),
+				cacheStorageService,
 				validator: require('./validators/playlists'),
 				responseMapper,
 			},
@@ -99,6 +103,7 @@ async function init() {
 				collaborationsService,
 				usersService,
 				playlistsService,
+				cacheStorageService,
 				validator: require('./validators/collaborations'),
 				responseMapper,
 			},

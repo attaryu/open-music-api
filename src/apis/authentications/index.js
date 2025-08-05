@@ -9,6 +9,7 @@ module.exports = {
 	 * @param {Object} options
 	 * @param {import('../../services/postgres/authentications-service')} options.authenticationsService
 	 * @param {import('../../services/postgres/users-service')} options.usersService
+	 * @param {import('../../services/redis/cache-storage-service')} options.cacheStorageService
 	 * @param {import('../../providers/token-manager')} options.tokenManager
 	 * @param {import('../../validators/authentications')} options.validator
 	 * @param {import('../../utils/response-mapper')} options.responseMapper
@@ -18,6 +19,7 @@ module.exports = {
 		{
 			authenticationsService,
 			usersService,
+			cacheStorageService,
 			tokenManager,
 			validator,
 			responseMapper,
@@ -26,6 +28,7 @@ module.exports = {
 		const authenticationHandler = new AuthenticationsHandler(
 			authenticationsService,
 			usersService,
+			cacheStorageService,
 			tokenManager,
 			validator,
 			responseMapper

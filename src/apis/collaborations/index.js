@@ -10,6 +10,7 @@ module.exports = {
 	 * @param {import('../../services/postgres/collaborations-service')} options.collaborationsService
 	 * @param {import('../../services/postgres/users-service')} options.usersService
 	 * @param {import('../../services/postgres/playlists-service')} options.playlistsService
+	 * @param {import('../../services/redis/cache-storage-service')} options.cacheStorageService
 	 * @param {import('../../validators/collaborations')} options.validator
 	 * @param {import('../../utils/response-mapper')} options.responseMapper
 	 */
@@ -19,6 +20,7 @@ module.exports = {
 			collaborationsService,
 			usersService,
 			playlistsService,
+			cacheStorageService,
 			validator,
 			responseMapper,
 		}
@@ -27,6 +29,7 @@ module.exports = {
 			collaborationsService,
 			usersService,
 			playlistsService,
+			cacheStorageService,
 			validator,
 			responseMapper
 		);

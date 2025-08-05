@@ -12,7 +12,7 @@ module.exports = (handler) => [
 	{
 		method: 'GET',
 		path: '/playlists',
-		handler: (request) => handler.getPlaylistsHandler(request),
+		handler: (request, h) => handler.getPlaylistsHandler(request, h),
 		options: { auth: 'openmusic_jwt' },
 	},
 	{
@@ -42,7 +42,7 @@ module.exports = (handler) => [
 	{
 		method: 'GET',
 		path: '/playlists/{id}/activities',
-		handler: (request) => handler.getPlaylistActivitiesHandler(request),
+		handler: (request, h) => handler.getPlaylistActivitiesHandler(request, h),
 		options: { auth: 'openmusic_jwt' },
-	}
+	},
 ];

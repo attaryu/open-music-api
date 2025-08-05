@@ -41,14 +41,26 @@ class AlbumHandler {
 
 	/**
 	 * @param {import('@hapi/hapi').Request} request
+	 * @param {import('@hapi/hapi').ResponseToolkit} h
 	 */
-	async getAlbumHandler(request) {
+	async getAlbumHandler(request, h) {
 		const { id } = request.params;
-		const album = await this._albumsService.getAlbumById(id);
 
-		return this._responseMapper.success('Album retrieved successfully', {
-			album,
-		});
+		const album = await this._cacheStorageService.getOrCallback(
+			this._getAlbumCacheKey(id),
+			() => this._albumsService.getAlbumById(id)
+		);
+
+		const response = this._responseMapper.success(
+			'Album retrieved successfully',
+			{ album: album.data }
+		);
+
+		if (album.source === 'cache') {
+			return h.response(response).header('X-Data-Source', 'cache');
+		}
+
+		return response;
 	}
 
 	/**
@@ -56,12 +68,14 @@ class AlbumHandler {
 	 */
 	async putAlbumHandler(request) {
 		this._validator.validateAlbumPayload(request.payload);
+		const albumId = request.params.id;
 
 		const updatedAlbumId = await this._albumsService.updateAlbum(
-			request.params.id,
+			albumId,
 			request.payload.name,
 			request.payload.year
 		);
+		await this._cacheStorageService.delete(this._getAlbumCacheKey(albumId));
 
 		return this._responseMapper.success('Album updated successfully', {
 			albumId: updatedAlbumId,
@@ -73,6 +87,10 @@ class AlbumHandler {
 	 */
 	async deleteAlbumHandler(request) {
 		await this._albumsService.deleteAlbum(request.params.id);
+		await this._cacheStorageService.delete(
+			this._getAlbumCacheKey(request.params.id)
+		);
+
 		return this._responseMapper.success('Album deleted successfully');
 	}
 
@@ -87,6 +105,7 @@ class AlbumHandler {
 		const { id } = request.params;
 		const album = await this._albumsService.getAlbumById(id);
 
+		// Check if the album exists then delete the existing cover
 		if (album.coverUrl) {
 			const filename = album.coverUrl.split('/').pop();
 			await this._storageService.deleteFile(filename);
@@ -101,6 +120,8 @@ class AlbumHandler {
 			id,
 			`http://${process.env.HOST}:${process.env.PORT}/albums/${id}/covers/${coverFilename}`
 		);
+
+		await this._cacheStorageService.delete(this._getAlbumCacheKey(id));
 
 		return h
 			.response(
@@ -133,26 +154,22 @@ class AlbumHandler {
 	async getAlbumLikesHandler(request, h) {
 		const { id } = request.params;
 
-		const likes = await this._cacheStorageService.getFromCacheOrCallback(
+		const likes = await this._cacheStorageService.getOrCallback(
 			this._getAlbumLikeCacheKey(id),
 			() => this._albumsService.getAlbumLikesCount(id)
 		);
 
-		const responseMessage = 'Album likes count retrieved successfully';
+		const response = this._responseMapper.success(
+			'Album likes count retrieved successfully',
+			{ likes: likes.data }
+		);
 
 		if (likes.source === 'cache') {
-			return h
-				.response(
-					this._responseMapper.success(responseMessage, {
-						likes: parseInt(likes.data, 10),
-					})
-				)
-				.header('X-Data-Source', 'cache');
+			response.data.likes = parseInt(likes.data, 10);
+			return h.response(response).header('X-Data-Source', 'cache');
 		}
 
-		return this._responseMapper.success(responseMessage, {
-			likes: likes.data,
-		});
+		return response;
 	}
 
 	/**
@@ -169,11 +186,23 @@ class AlbumHandler {
 	}
 
 	/**
+	 * cache key for album likes
+	 * 
 	 * @param {string} id
 	 * @returns {string}
 	 */
 	_getAlbumLikeCacheKey(id) {
 		return `album:${id}:likes`;
+	}
+
+	/**
+	 * cache key for album
+	 * 
+	 * @param {string} id
+	 * @returns {string}
+	 */
+	_getAlbumCacheKey(id) {
+		return `album:${id}`;
 	}
 }
 

@@ -25,9 +25,9 @@ class AuthenticationsService {
 	 * @param {string} userId
 	 *
 	 * @throws {BadRequestError}
-	 * @returns {Promise<void>}
+	 * @returns {Promise<string>}
 	 */
-	async verifyRefreshToken(token, userId) {
+	async getRefreshToken(token, userId) {
 		const result = await this._pool.query(
 			'SELECT token FROM authentications WHERE token = $1 AND user_id = $2',
 			[token, userId]
@@ -36,6 +36,8 @@ class AuthenticationsService {
 		if (result.rowCount <= 0) {
 			throw new BadRequestError('Refresh token not found');
 		}
+
+		return result.rows[0];
 	}
 
 	/**
